@@ -1,10 +1,20 @@
+# Commands
+
+# upload:filename:number:`chunk`
+
+# Return list of all files in system seperated by comas
+# ls
+
+# Download all available chunks of a file
+# download:filename
+
 import sys
 import socket
 import selectors
 import types
 import chunks
 
-PORT = 12345
+PORT = 12342
 
 chunksServer = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/server/chunks', '/Users/antoine/Documents/PP/hackthehill/asocket/server/clean')
 
@@ -43,18 +53,43 @@ def service_connection(key, mask):
                 sock.close()
                 exit()
 
-            parts = data.outb.decode().split(':')
+            dataString = str(data.outb.decode())
 
-            if parts[0] == 'upload':
+            if dataString.startswith('upload'):
+                parts = data.outb.decode().split(':')
                 print('Uploading')
                 filename = parts[1]
                 number = parts[2]
                 data.outb = parts[3]
                 chunksServer.writeChunkFile(filename, number, data.outb.encode())
+                sock.send("Ok".encode())
+            
+            elif dataString.startswith('ls'):
+                l = chunksServer.listFiles()
+                mes = ''
+                for i in l:
+                    mes = mes + i + ':'
+                
+                sock.send(mes[:-1].encode())
 
-            sock.sendall("Ok".encode())
+            elif dataString.startswith('download'):
+                parts = data.outb.decode().split(':')
+                print('Downloading')
+                filename = parts[1]
+                to_send = chunksServer.readAllChunks(filename)
 
-            data.outb = []
+                for i, s in to_send.items():
+                    print('Sending chunk ' + str(i))
+                    mes = str(i) + ':' + str(len(s)) + ':' + s.decode()
+                    sock.send(mes.encode())
+                
+                sock.send("Ok".encode())
+
+            else:
+                print('Invalid command: ', dataString)
+                sock.send('Invalid command'.encode())
+
+            data.outb = ''.encode()
 
 try:
     while True:
