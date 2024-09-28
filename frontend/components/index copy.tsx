@@ -46,15 +46,27 @@ export default function Index() {
             setFilePath(result); // Store the file path in state
             setUploadStatus(result); // Store the file path in state
             console.log('Selected file:', result); // Log or use the file path as needed
-            sendFilePathToSocket(filePath);
           }
           else{
           setUploadStatus("fAILURE TO READ"); // Store the file path in state 
         }
+
+      // try {
+      //     // Trigger the file dialog in the main process and get the file path
+      //     const filePath = await ipcRenderer.invoke('open-file-dialog');
+
+      //     if (filePath) {
+      //         console.log("Selected File Path:", filePath);
+      //         sendFilePathToSocket(filePath);  // You can send this to your socket function
+      //     }
+      // } catch (error) {
+      //     console.error("Error selecting file:", error);
+      // }
     };
 
     function sendFilePathToSocket(filePath: string) {
-    const socket = new WebSocket('ws://127.0.0.0:5001');  // Replace with your socket configuration
+    // Assuming you're using Node.js' net or another socket library
+    const socket = new WebSocket('ws://localhost:8080');  // Replace with your socket configuration
     
     socket.onopen = () => {
         socket.send(filePath);  // Send the file path over the socket
