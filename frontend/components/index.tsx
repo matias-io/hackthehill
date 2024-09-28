@@ -54,7 +54,7 @@ export default function Index() {
     };
 
     function sendFilePathToSocket(filePath: string) {
-    const socket = new WebSocket('ws://127.0.0.0:5001');  // Replace with your socket configuration
+    const socket = new WebSocket('ws://127.0.0.1:6001');  // Replace with your socket configuration
     
     socket.onopen = () => {
         socket.send(filePath);  // Send the file path over the socket
@@ -67,6 +67,7 @@ export default function Index() {
       setUploadStatus('Error sending file to backend. (P2P CLIENT)');
         console.error('Socket error:', error);
     };
+
 }
     // const sendFilePathToBackend = (filePath: string) => {
     //     const { exec } = require('child_process');
