@@ -55,7 +55,6 @@ class Chunks:
                     found = found + 1
             except:
                 print("Path not found: " + path)
-                continue
 
             index = index + 1
 
@@ -122,6 +121,12 @@ class Chunks:
             l.append(path.split('_')[0])
 
         l = list(dict.fromkeys(l))
+        return l
+    
+    def listChunkFiles(self):
+        l = []
+        for path in os.listdir(self.filepath):
+            l.append(path)
         return l
     
     # Number of available chunks for a file name

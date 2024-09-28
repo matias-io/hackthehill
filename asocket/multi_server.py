@@ -5,6 +5,9 @@
 # Return list of all files in system seperated by comas
 # ls
 
+# Return list of all chunk files seperated by comas
+# cls
+
 # Download all available chunks of a file
 # download:filename
 
@@ -14,9 +17,33 @@ import selectors
 import types
 import chunks
 
-PORT = 12342
+USERS = [
+    {
+        'ip': '127.0.0.1',
+        'port': 12342,
+        'name': 'Antoine'
+    },
+    {
+        'ip': '127.0.0.1',
+        'port': 12399,
+        'name': 'Lucas'
+    }
+]
 
-chunksServer = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/server/chunks', '/Users/antoine/Documents/PP/hackthehill/asocket/server/clean')
+def findUser(name):
+    for u in USERS:
+        if u['name'].lower() == name.lower():
+            return u
+    print('Could not find user')
+    exit()
+
+user = findUser(sys.argv[1])
+PORT = user['port']
+username = user['name']
+
+rootPath = '/Users/antoine/Documents/PP/hackthehill/asocket/server/' + username
+
+chunksServer = chunks.Chunks(rootPath + '/chunks', rootPath + '/clean')
 
 sel = selectors.DefaultSelector()
 
@@ -69,6 +96,17 @@ def service_connection(key, mask):
                 mes = ''
                 for i in l:
                     mes = mes + i + ':'
+                
+                sock.send(mes[:-1].encode())
+            
+            elif dataString.startswith('cls'):
+                l = chunksServer.listChunkFiles()
+                mes = ''
+                for i in l:
+                    mes = mes + i + ':'
+
+                if mes == '':
+                    mes = 'No files'
                 
                 sock.send(mes[:-1].encode())
 
