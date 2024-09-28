@@ -24,11 +24,11 @@ public ResponseEntity<String> receiveFile(
     try {
         // Save the received file locally
         File receivedFile = new File(filename);
-        try (FileOutputStream fos = new FileOutputStream(receivedFile)) {
+        try (FileOutputStream fos = new FileOutputStream("src/main/resources/static/"+receivedFile)) {
             fos.write(file.getBytes());
         }
 
-        return ResponseEntity.ok("File received and saved as: " + filename);
+        return ResponseEntity.ok("File received and saved as: localhost:8080/" + filename);
 
     } catch (IOException e) {
         e.printStackTrace();

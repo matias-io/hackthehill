@@ -31,7 +31,13 @@ interface DataPoint {
 
 
 const FileUpload: React.FC = () => {
-    const [received, setReceived] = useState([]);
+    interface ReceivedFile {
+        name: string;
+        size: number;
+        uploadedBy: string;
+    }
+
+    const [received, setReceived] = useState<ReceivedFile[]>([]);
     const [file, setFile] = useState<File | null>(null); // File type for file upload
     const [tunnelUrl, setTunnelUrl] = useState<string>(''); // String type for tunnel URL
     const [toUpload, setToUpload] = useState<File[]>([
@@ -54,10 +60,44 @@ const FileUpload: React.FC = () => {
                 }]
                 return newData.slice(-20)
             })
+
         }, 1000)
 
         return () => clearInterval(interval)
     }, [])
+
+    useEffect(() => {
+        const fetchFiles = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/files');
+
+                // Assuming response.data is an array of strings in the format: "name;size;uploadedBy"
+                const parsedFiles: ReceivedFile[] = response.data.map((fileString: string) => {
+                    const [name, size, uploadedBy] = fileString.split(';');
+
+                    // Convert size to a number and return an object of type ReceivedFile
+                    return {
+                        name: name,
+                        size: Number(size),
+                        uploadedBy: uploadedBy,
+                    };
+                });
+
+                setReceived(parsedFiles);
+                console.log("Received!", parsedFiles);
+            } catch (error) {
+                console.error('Error fetching files:', error);
+            }
+        };
+
+        // Fetch files every 1000ms (1 second)
+        const intervalId = setInterval(() => {
+            fetchFiles();
+        }, 1000);
+
+        // Cleanup the interval on component unmount
+        return () => clearInterval(intervalId);
+    }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -72,7 +112,6 @@ const FileUpload: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!file || !tunnelUrl) {
-            alert('Please select a file and provide a tunnel URL');
             return;
         }
 
@@ -86,10 +125,8 @@ const FileUpload: React.FC = () => {
                     'Content-Type': 'multipart/form-data',  // Ensure multipart/form-data is set
                 },
             });
-            alert('File uploaded successfully: ' + response.data);
         } catch (error) {
             console.error('File upload failed', error);
-            alert('File upload failed');
         }
     };
 
@@ -109,24 +146,6 @@ const FileUpload: React.FC = () => {
         }
     }
 
-
-
-    {/*
-    return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Select File:</label>
-                    <input type="file" onChange={handleFileChange} />
-                </div>
-                <div>
-                    <label>Enter Peer Tunnel URL:</label>
-                    <input type="text" value={tunnelUrl} onChange={handleTunnelUrlChange} />
-                </div>
-                <button type="submit">Upload and Forward</button>
-            </form>
-        </div>
-    ); */}
     return (
         <div className="container mx-auto p-4 max-w-4xl min-h-screen flex flex-col justify-center">
             <div className="flex items-center mb-6">
@@ -286,22 +305,11 @@ const FileUpload: React.FC = () => {
 
             {file != null ?
                 <div className="h-auto overflow-y-auto mb-6 animate-fade-in">
-                    <div className="flex items-center">
                     <form onSubmit={handleSubmit}>
-                        <h2 className="text-lg font-extrabold mb-2">Ready to Upload &nbsp;</h2>
-                        <button type="submit" className="group relative inline-flex h-6 mb-2 ml-3 items-center justify-center rounded-md bg-neutral-950 px-6 font-medium text-neutral-200"><span>Upload</span><div className="relative ml-1 h-5 w-5 overflow-hidden"><div className="absolute transition-all duration-200 group-hover:-translate-y-5 group-hover:translate-x-4"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5"><path d="M3.64645 11.3536C3.45118 11.1583 3.45118 10.8417 3.64645 10.6465L10.2929 4L6 4C5.72386 4 5.5 3.77614 5.5 3.5C5.5 3.22386 5.72386 3 6 3L11.5 3C11.6326 3 11.7598 3.05268 11.8536 3.14645C11.9473 3.24022 12 3.36739 12 3.5L12 9.00001C12 9.27615 11.7761 9.50001 11.5 9.50001C11.2239 9.50001 11 9.27615 11 9.00001V4.70711L4.35355 11.3536C4.15829 11.5488 3.84171 11.5488 3.64645 11.3536Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 -translate-x-4"><path d="M3.64645 11.3536C3.45118 11.1583 3.45118 10.8417 3.64645 10.6465L10.2929 4L6 4C5.72386 4 5.5 3.77614 5.5 3.5C5.5 3.22386 5.72386 3 6 3L11.5 3C11.6326 3 11.7598 3.05268 11.8536 3.14645C11.9473 3.24022 12 3.36739 12 3.5L12 9.00001C12 9.27615 11.7761 9.50001 11.5 9.50001C11.2239 9.50001 11 9.27615 11 9.00001V4.70711L4.35355 11.3536C4.15829 11.5488 3.84171 11.5488 3.64645 11.3536Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg></div></div></button>
-                    </form>
-                    </div>
-                    <form onSubmit={handleSubmit}>
-                        <div>
-                            <label>Select File:</label>
-                            <input type="file" onChange={handleFileChange} />
+                        <div className="flex items-center">
+                            <h2 className="text-lg font-extrabold mb-2">Ready to Upload &nbsp;</h2>
+                            <button type="submit" className="group relative inline-flex h-6 mb-2 ml-3 items-center justify-center rounded-md bg-neutral-950 px-6 font-medium text-neutral-200"><span>Upload</span><div className="relative ml-1 h-5 w-5 overflow-hidden"><div className="absolute transition-all duration-200 group-hover:-translate-y-5 group-hover:translate-x-4"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5"><path d="M3.64645 11.3536C3.45118 11.1583 3.45118 10.8417 3.64645 10.6465L10.2929 4L6 4C5.72386 4 5.5 3.77614 5.5 3.5C5.5 3.22386 5.72386 3 6 3L11.5 3C11.6326 3 11.7598 3.05268 11.8536 3.14645C11.9473 3.24022 12 3.36739 12 3.5L12 9.00001C12 9.27615 11.7761 9.50001 11.5 9.50001C11.2239 9.50001 11 9.27615 11 9.00001V4.70711L4.35355 11.3536C4.15829 11.5488 3.84171 11.5488 3.64645 11.3536Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 -translate-x-4"><path d="M3.64645 11.3536C3.45118 11.1583 3.45118 10.8417 3.64645 10.6465L10.2929 4L6 4C5.72386 4 5.5 3.77614 5.5 3.5C5.5 3.22386 5.72386 3 6 3L11.5 3C11.6326 3 11.7598 3.05268 11.8536 3.14645C11.9473 3.24022 12 3.36739 12 3.5L12 9.00001C12 9.27615 11.7761 9.50001 11.5 9.50001C11.2239 9.50001 11 9.27615 11 9.00001V4.70711L4.35355 11.3536C4.15829 11.5488 3.84171 11.5488 3.64645 11.3536Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg></div></div></button>
                         </div>
-                        <div>
-                            <label>Enter Peer Tunnel URL:{file.name}</label>
-                            <input type="text" value={tunnelUrl} onChange={handleTunnelUrlChange} />
-                        </div>
-                        <button type="submit">Upload and Forward</button>
                     </form>
                     <Table>
                         <TableHeader>
@@ -316,7 +324,7 @@ const FileUpload: React.FC = () => {
                             <TableRow key={file.name}>
                                 <TableCell className="font-medium">{file.name}</TableCell>
                                 <TableCell>{file.size}</TableCell>
-                                <TableCell>{file.name}</TableCell>
+                                <TableCell>You</TableCell>
                                 <TableCell>
                                     <Dialog>
                                         <DialogTrigger asChild>
@@ -414,52 +422,20 @@ const FileUpload: React.FC = () => {
                             <TableHead>Action</TableHead>
                         </TableRow>
                     </TableHeader>
-                    {/*<TableBody>
-                        {filteredFiles.map((file) => (
-                            <TableRow key={file.id}>
+                    <TableBody>
+                        {received.map((file) => (
+                            <TableRow key={file.name}>
                                 <TableCell className="font-medium">{file.name}</TableCell>
                                 <TableCell>{file.size}</TableCell>
                                 <TableCell>{file.uploadedBy}</TableCell>
                                 <TableCell>
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant="ghost" size="sm">
-                                                Details
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent>
-                                            <DialogHeader>
-                                                <DialogTitle>{file.name}</DialogTitle>
-                                            </DialogHeader>
-                                            <div className="grid gap-4 py-4">
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="name" className="text-right">
-                                                        Name
-                                                    </Label>
-                                                    <div className="col-span-3">{file.name}</div>
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="size" className="text-right">
-                                                        Size
-                                                    </Label>
-                                                    <div className="col-span-3">{file.size}</div>
-                                                </div>
-                                                <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="uploadedBy" className="text-right">
-                                                        Uploaded By
-                                                    </Label>
-                                                    <div className="col-span-3">{file.uploadedBy}</div>
-                                                </div>
-                                            </div>
-                                            <Button className="w-full">
-                                                <Download className="mr-2 h-4 w-4" /> Download
-                                            </Button>
-                                        </DialogContent>
-                                    </Dialog>
+                                    <a href={"http://localhost:8080/" + file.name} target="_blank">
+                                        <button className="group relative inline-flex h-6 items-center justify-center overflow-hidden rounded-md bg-neutral-950 px-2 font-medium text-neutral-200"><span>Open File</span><div className="ml-1 transition group-hover:translate-x-1"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5"><path d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg></div></button>
+                                    </a>
                                 </TableCell>
                             </TableRow>
                         ))}
-                    </TableBody>*/}
+                    </TableBody>
                 </Table>
             </div>
         </div>
