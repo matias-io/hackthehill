@@ -65,8 +65,7 @@ export default function Index() {
     };
 
     function sendFilePathToSocket(filePath: string) {
-    // Assuming you're using Node.js' net or another socket library
-    const socket = new WebSocket('ws://localhost:8080');  // Replace with your socket configuration
+    const socket = new WebSocket('ws://localhost:8080');  
     
     socket.onopen = () => {
         socket.send(filePath);  // Send the file path over the socket
