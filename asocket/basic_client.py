@@ -20,7 +20,7 @@ chunksServer = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/se
 
 s = socket.socket()
 
-port = 12349
+port = 12345
 
 s.connect(('127.0.0.1', port))
 print("Connected")
