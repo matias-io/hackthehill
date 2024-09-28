@@ -11,6 +11,9 @@
 # Download all available chunks of a file
 # download:filename
 
+# Delete file
+# delete:filename
+
 import sys
 import socket
 import selectors
@@ -20,12 +23,12 @@ import chunks
 USERS = [
     {
         'ip': '127.0.0.1',
-        'port': 12342,
+        'port': 12343,
         'name': 'Antoine'
     },
     {
         'ip': '127.0.0.1',
-        'port': 12399,
+        'port': 12398,
         'name': 'Lucas'
     }
 ]
@@ -121,6 +124,12 @@ def service_connection(key, mask):
                     mes = str(i) + ':' + str(len(s)) + ':' + s.decode()
                     sock.send(mes.encode())
                 
+                sock.send("Ok".encode())
+
+            elif dataString.startswith('delete'):
+                parts = data.outb.decode().split(':')
+                filename = parts[1]
+                chunksServer.deleteFile(filename)
                 sock.send("Ok".encode())
 
             else:

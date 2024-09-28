@@ -94,6 +94,16 @@ class Chunks:
         with open(path, 'wb+') as f:
             f.write(data)
 
+    # Delete all chuncks of a file
+    def deleteFile(self, filename):
+        files = self.listChunkFiles()
+        for f in files:
+            if f.startswith(filename):
+                try:
+                    os.remove(self.filepath + '/' + f)
+                except:
+                    return
+
     # Read a full file and return list of deconstructed chunks
     def deconstructFile(self, name):
         fname = name

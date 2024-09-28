@@ -30,6 +30,11 @@ import socket
 # Will find chunks from everywhere
 # ddown:filename
 
+# Delete file from network
+# del:filename
+
+# Delete file from network
+
 # DEPRECIATED
 # Reconstruct file from chunks (server side) 
 # r:filename
@@ -39,12 +44,12 @@ import socket
 USERS = [
     {
         'ip': '127.0.0.1',
-        'port': 12342,
+        'port': 12343,
         'name': 'Antoine'
     },
     {
         'ip': '127.0.0.1',
-        'port': 12399,
+        'port': 12398,
         'name': 'Lucas'
     }
 ]
@@ -161,6 +166,16 @@ while True:
         d = chunksServer.readFullFile(filename)
         chunksServer.writeFullFile(filename, d)
 
+    if new.startswith('del'):
+        splits = new.split(':')
+        filename = splits[1]
+        for user in USERS:
+            msg = 'delete:' + filename
+            user['socket'].sendall(msg.encode())
+            data = user['socket'].recv(1024)
+            print(data.decode())
+
+
     if new.startswith('down'):
         splits = new.split(':')
         filename = splits[1]
@@ -264,7 +279,11 @@ while True:
         print(len(all_chunks))
         while i < len(all_chunks):
             print('Assembling chunk ' + str(i))
-            chunks_ordered.append(all_chunks[i].encode())
+            try:
+                chunks_ordered.append(all_chunks[i].encode())
+            except:
+                print('Chunks are missing for a file. Aborting')
+                break
             i = i + 1
         
         
