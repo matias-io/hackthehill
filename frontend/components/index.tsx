@@ -35,6 +35,7 @@ interface DataPoint {
 }
 
 
+
 export default function Index() {
   const [files, setFiles] = useState<File[]>([
     { id: "1", name: "abc.txt", size: "2.5 MB", uploadedBy: "suxo@node1" },
@@ -63,19 +64,6 @@ export default function Index() {
     return () => clearInterval(interval)
   }, [])
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const newFile: File = {
-        id: Date.now().toString(),
-        name: file.name,
-        size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-        uploadedBy: "You",
-      }
-      setToUpload([...toUpload, newFile])
-    }
-  }
-
   const handleRemoveFile = (id: string) => {
     setToUpload(toUpload.filter(file => file.id !== id));
   }
@@ -98,7 +86,7 @@ export default function Index() {
           style={{ maxHeight: '20px', width: 'auto' }}
           className="animate-fade-in mb-0.5"
         />
-                {status ?
+        {status ?
           <button onClick={() => handleConnection(0)} className="group relative inline-flex ml-3 h-6 items-center justify-center overflow-hidden rounded-md bg-green-500 hover:bg-red-400 px-2 font-medium text-neutral-200 duration-500">
             <div className="relative inline-flex -translate-x-0 items-center transition group-hover:translate-x-6">
               <div className="absolute -translate-x-4 opacity-0 transition group-hover:-translate-x-6 group-hover:opacity-100">
@@ -238,7 +226,6 @@ export default function Index() {
             id="file-upload"
             type="file"
             className="hidden"
-            onChange={handleFileUpload}
           />
         </Label>
       </div>

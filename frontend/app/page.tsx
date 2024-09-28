@@ -1,4 +1,4 @@
-import Index from "../components/index";
+import Index from "../components/fileupload";
 
 export default function Home() {
   return (
