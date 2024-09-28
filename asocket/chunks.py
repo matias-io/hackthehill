@@ -33,22 +33,32 @@ class Chunks:
 
     def readFullFile(self, name):
         index = 1
-        file_data = ''
+
+        file_data = []
 
         while True:
             fname = name + '_' + str(index)
             path = self.filepath + '/' + fname
-            isPath = os.path.isfile(fname)
-
-            if isPath == False:
-                return file_data
+            print(path)
         
-            with open(path, 'rb') as f:
-                temp = file_data = f.read()
+            try: 
+                with open(path, 'rb') as f:
+                    temp = f.read()
+            except:
+                print(file_data)
+                return reconstruct_buffer(file_data)
 
-            file_data = file_data + temp
+            print("Reading " + fname)
+            file_data.append(temp)
 
             index = index + 1
+
+    def writeFullFile(self, name, data):
+        fname = name
+        path = self.cleanfilepath + '/' + fname
+
+        with open(path, 'wb+') as f:
+            f.write(data)
 
     def deconstructFile(self, name):
         fname = name
@@ -67,3 +77,4 @@ class Chunks:
 
         with open(path, 'wb+') as f:
             f.write(buffer)
+

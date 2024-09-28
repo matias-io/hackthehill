@@ -5,7 +5,7 @@
 import socket
 import chunks
 
-chunks = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/server/chunks', '/Users/antoine/Documents/PP/hackthehill/asocket/server/clean')
+chunksServer = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/server/chunks', '/Users/antoine/Documents/PP/hackthehill/asocket/server/clean')
 
 # Create socket
 s = socket.socket()
@@ -38,7 +38,7 @@ with c:
             filename = parts[1]
             number = parts[2]
             data = parts[3]
-            chunks.writeChunkFile(filename, number, data.encode())
+            chunksServer.writeChunkFile(filename, number, data.encode())
 
         print(data)
         c.sendall("Ok".encode())
