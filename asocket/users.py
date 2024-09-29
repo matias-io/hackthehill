@@ -1,5 +1,8 @@
 # TODO: Modify this for you machine
 TABLE_PATH = '/Users/antoine/Documents/PP/hackthehill/asocket/user_table.tx'
+LOCAL_IP='127.0.0.1'
+LOCAL_PORT='12345'
+LOCAL_NAME='antoine'
 
 def findUser(all, name):
     for u in all:
@@ -42,3 +45,10 @@ class UserTable:
             'port': port
         })
         self.write()
+
+    def checkUser(self, name):
+        for u in self.users:
+            if u['name'] == name:
+                return True
+
+        return False
