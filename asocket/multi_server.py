@@ -8,15 +8,23 @@
 # Download all available chunks of a file
 # download:filename
 
+# 
+# 
+
+
+
 import sys
 import socket
 import selectors
 import types
 import chunks
 
-PORT = 12342
+PORT = 12399
 
-chunksServer = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/server/chunks', '/Users/antoine/Documents/PP/hackthehill/asocket/server/clean')
+chunksServer = chunks.Chunks('/Users/adityabaindur/Desktop/HTH_LATEST/hackthehill/asocket/server/chunks', 
+                             '/Users/adityabaindur/Desktop/HTH_LATEST/hackthehill/asocket/server/clean', 
+                             '/Users/adityabaindur/Desktop/HTH_LATEST/hackthehill/asocket/server/hash')
+
 
 sel = selectors.DefaultSelector()
 
@@ -46,6 +54,7 @@ def service_connection(key, mask):
             print(f"Closing connection to {data.addr}")
             sel.unregister(sock)
             sock.close()
+        
     if mask & selectors.EVENT_WRITE:
         if data.outb:
             if data.outb == 'c'.encode():
@@ -54,6 +63,7 @@ def service_connection(key, mask):
                 exit()
 
             dataString = str(data.outb.decode())
+            print(dataString)
 
             if dataString.startswith('upload'):
                 parts = data.outb.decode().split(':')
@@ -84,6 +94,45 @@ def service_connection(key, mask):
                     sock.send(mes.encode())
                 
                 sock.send("Ok".encode())
+
+
+
+
+
+
+
+
+
+
+
+            elif dataString.startswith('wh'):
+
+                parts = data.outb.decode().split(':')
+
+                print('Uploading w HASH')
+
+                filename = parts[1]
+                number = parts[2]
+                hash = parts[3]
+
+                chunksServer.writeChunkFile(filename, number, data.outb)
+                print("\n\n\n chunked \n\n\n")
+
+                chunksServer.writeHashFile(filename, number,hash )
+
+
+                sock.send("Ok_hashed".encode())
+
+
+
+
+
+
+
+
+
+
+
 
             else:
                 print('Invalid command: ', dataString)

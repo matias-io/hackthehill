@@ -1,4 +1,5 @@
 import os.path
+import hasher 
 
 def split_buffer(buffer, chunk_size=256):
     return [buffer[i:i + chunk_size] for i in range(0, len(buffer), chunk_size)]
@@ -10,10 +11,14 @@ class Chunks:
 
     filepath = '' # Chunks
     cleanfilepath = '' # Actual files
+    hash_path = '' # path of the hashing code
 
-    def __init__(self, filepath, cleanpath) -> None:
+    def __init__(self, filepath, cleanpath,hashingpath) -> None:
         self.filepath = filepath
         self.cleanfilepath = cleanpath
+        self.hash_path = hashingpath
+
+
 
     # Read a specific chunk file
     # Return the buffer
@@ -31,9 +36,29 @@ class Chunks:
         fname = name + '_' + str(number)
         path = self.filepath + '/' + fname
 
+        print(path)
+
+
         with open(path, 'wb+') as f:
             f.write(file_data)
 
+
+
+
+    def writeHashFile(self, name, number, hash):
+        fname = name + '_' + str(number)
+        path = os.path.join(self.hash_path, fname)
+
+        print(f"Saving hash to: {path}")
+
+        # Open the path where the hash file will be saved
+        with open(path, 'w') as f:
+            f.write(hash)
+
+        print(f"Hash written to: {path}")
+
+    
+   
     # Read all chunk files
     # Return a dict of buffers
     def readAllChunks(self, name):
@@ -131,4 +156,10 @@ class Chunks:
             if path.startswith(filename):
                 l.append(path)
         return len(l)
+    
 
+    def hashpath(self):
+        return self.hash_path
+    
+    def file_path(self):
+        return self.filepath

@@ -1,5 +1,7 @@
 import chunks
 import socket
+import os
+import hasher
 
 # Commands
 
@@ -22,12 +24,12 @@ import socket
 USERS = [
     {
         'ip': '127.0.0.1',
-        'port': 12342,
+        'port': 12399,
         'name': 'Antoine'
     },
     {
         'ip': '127.0.0.1',
-        'port': 12399,
+        'port': 123429,
         'name': 'Aditya'
     }
 ]
@@ -49,8 +51,8 @@ for user in USERS:
 # List of all files in the network
 all_files = []
 
-chunksClient = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/client/chunks', '/Users/antoine/Documents/PP/hackthehill/asocket/client/clean')
-chunksServer = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/server/chunks', '/Users/antoine/Documents/PP/hackthehill/asocket/server/clean')
+chunksClient = chunks.Chunks('/Users/adityabaindur/Desktop/HTH_LATEST/hackthehill/asocket/client/chunks', '/Users/adityabaindur/Desktop/HTH_LATEST/hackthehill/asocket/client/clean','/Users/adityabaindur/Desktop/HTH_LATEST/hackthehill/asocket/client/hash')
+chunksServer = chunks.Chunks('/Users/adityabaindur/Desktop/HTH_LATEST/hackthehill/asocket/server/chunks', '/Users/adityabaindur/Desktop/HTH_LATEST/hackthehill/asocket/server/clean', '/Users/adityabaindur/Desktop/HTH_LATEST/hackthehill/asocket/server/hash')
 
 while True:
     new = input('> ')
@@ -60,6 +62,7 @@ while True:
         filename = splits[1]
         number= splits[2]
 
+
         c = chunksClient.readChunkFile(filename, number)
 
         mes = 'upload:' + filename + ":" + number + ":" + c.decode()
@@ -68,6 +71,9 @@ while True:
         USERS[0]['socket'].sendall(mes.encode())
         data = USERS[0]['socket'].recv(1024)
         print(data.decode())
+
+
+
 
     if new.startswith('sf'):
         USERS[0]['socket'].connect((USERS[0]['ip'], USERS[0]['port']))
@@ -96,6 +102,48 @@ while True:
             all_files = list(dict.fromkeys(all_files))
 
             print(all_files)
+
+
+
+
+
+
+
+
+
+    if new.startswith('wh'):
+
+        splits = new.split(':')
+        print(splits)
+
+
+        filename = splits[1]
+        number = splits[2]
+
+
+        expected_filename = f"{filename}_{number}"
+        full_path = os.path.join(chunksClient.filepath, expected_filename)
+
+
+        print(f"Full path //Testing: {full_path}")
+        c = chunksClient.readChunkFile(filename, number)
+
+     
+        hashed = hasher.hash(full_path)  
+
+        mes = f'wh:{filename}{number}:{hashed}:{c.decode()}'
+        USERS[0]['socket'].sendall(mes.encode())
+       
+        print(mes)
+
+
+
+
+
+
+
+
+
 
     if new.startswith('r'):
         splits = new.split(':')
