@@ -110,6 +110,7 @@ class Chunks:
     # Read a full file and return list of deconstructed chunks
     def deconstructFile(self, name):
         fname = name
+        print("Test: " + self.cleanfilepath + ", " + fname )
         path = self.cleanfilepath + '/' + fname
 
         with open(path, 'rb') as f:

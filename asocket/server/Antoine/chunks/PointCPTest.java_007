@@ -1,0 +1,11 @@
+ line arguments, or they were invalid
+      if(args.length != 0)
+        System.out.println("Invalid arguments on command line");
+
+      try
+      {
+        point = getInput();
+      }
+      catch(IOException ex)
+      {
+        System.out.println("Error g

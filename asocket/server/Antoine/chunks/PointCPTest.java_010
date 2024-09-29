@@ -1,0 +1,8 @@
+CP constructed using information obtained 
+   *         from the user.
+   * @throws IOException If there is an error getting input from
+   *         the user.
+   */
+  private static PointCP getInput() throws IOException
+  {
+    byte[] buffer = new byte[102

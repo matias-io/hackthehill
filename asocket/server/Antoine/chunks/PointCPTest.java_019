@@ -1,0 +1,11 @@
+lue();
+          }
+        }
+        catch(Exception e)
+        {
+        	System.out.println("Incorrect input");
+        	isOK = false;  //Reset flag as so not to end while loop
+        }
+      }
+
+      //Reset flag so while loop will prompt for other arg

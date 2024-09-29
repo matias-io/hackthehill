@@ -1,0 +1,6 @@
+ype (c/p)&gt; &lt;X/RHO&gt; &lt;Y/THETA&gt;
+   * </code> and the second by getting the program to prompt the user.
+   * If the user does not enter a valid sequence at the command line,
+   * the program will prompte him or her.
+   *
+   * @param args[0] The 

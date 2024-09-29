@@ -1,0 +1,7 @@
+uments
+      isOK = false;
+    }
+    //Return a new PointCP object
+    return (new PointCP(coordType, a, b));
+  }
+}

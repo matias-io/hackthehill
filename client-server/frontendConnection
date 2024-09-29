@@ -4,7 +4,7 @@ import websockets
 import os
 import json
 
-import asocket.client_obj;
+from asocket import Client
 
 client = Client()
 
@@ -20,7 +20,7 @@ async def frontend_link(websocket, path):
         data = request.get("data")
         
         if operation == "upload_file":
-            client.upload_file_distributed(data);
+            client.upload_file_distributed(data); 
             await websocket.send(json.dumps({"status": "success", "message": f"Uploaded {filename} to distributed nodes"}))
         
         elif operation == "download_file":

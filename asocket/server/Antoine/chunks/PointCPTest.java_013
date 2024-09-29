@@ -1,0 +1,5 @@
+       // Prompt the user
+        if (i == 0) // First argument - type of coordinates
+        {
+          System.out.print("Enter the type of Coordinates you "
+            + "are inputting ((C)artesian / (P)olar)

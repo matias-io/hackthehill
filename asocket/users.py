@@ -1,5 +1,6 @@
 # TODO: Modify this for you machine
-TABLE_PATH = '/Users/antoine/Documents/PP/hackthehill/asocket/user_table.tx'
+TABLE_PATH = 'C:/Users/Reima/Documents/Notes/Competitive Programming/hackthehill/asocket/user_table.tx'
+
 LOCAL_IP='127.0.0.1'
 LOCAL_PORT='12345'
 LOCAL_NAME='antoine'

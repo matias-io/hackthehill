@@ -20,17 +20,15 @@ async def frontend_link(websocket, path):
             data = request.get("data")
             
             if operation == "upload_file":
-                
-
                 file_path = Path(data)
                 directory = str(file_path.parent)
                 filename = str(file_path.name)
 
                 client.update_path(directory)
-                print("data ", data)
+                print(data)
                 print("dir", directory)
                 print("fn", filename)
-                client.upload_file_distributed(filename)
+                client.upload_file_distributed(filename);
                 await websocket.send(json.dumps({"status": "success", "message": f"Uploaded {data} to distributed nodes"}))
             
             elif operation == "download_file":
@@ -42,6 +40,7 @@ async def frontend_link(websocket, path):
                 await websocket.send(json.dumps({"status": "success", "message": f"Deleted {filename} sucessfully"}))
                 
             elif operation == "get_files":
+                print("done")
                 files = client.ls()
                 await websocket.send(json.dumps({"status": "success", "message": files}))
 

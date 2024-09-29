@@ -1,0 +1,5 @@
+hird arguments
+        {
+          System.out.print("Enter the value of " 
+            + (coordType == 'C' 
+              ? (i == 1 ? "X " 

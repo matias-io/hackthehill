@@ -1,0 +1,8 @@
+new PointCP(args[0].toUpperCase().charAt(0), 
+        Double.valueOf(args[1]).doubleValue(), 
+        Double.valueOf(args[2]).doubleValue());
+    }
+    catch(Exception e)
+    {
+      // If we arrive here, it is because either there were no
+      // command

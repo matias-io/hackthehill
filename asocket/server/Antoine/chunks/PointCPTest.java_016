@@ -1,0 +1,9 @@
+rim();
+        
+        // Verify the user's input
+        try
+        {
+          if (i == 0) // First argument -- type of coordinates
+          {
+            if (!((theInput.toUpperCase().charAt(0) == 'C') 
+              || (theInput.toUpperCase().charAt

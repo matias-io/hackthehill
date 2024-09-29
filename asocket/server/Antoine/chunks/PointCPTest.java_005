@@ -1,0 +1,8 @@
+rtesian-Polar Coordinates Conversion Program");
+
+    // Check if the user input coordinates from the command line
+    // If he did, create the PointCP object from these arguments.
+    // If he did not, prompt the user for them.
+    try
+    {
+      point = 

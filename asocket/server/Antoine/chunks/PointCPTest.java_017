@@ -1,0 +1,11 @@
+(0) == 'P')))
+            {
+              //Invalid input, reset flag so user is prompted again
+              isOK = false;
+            }
+            else
+            {
+              coordType = theInput.toUpperCase().charAt(0);
+            }
+          }
+ 

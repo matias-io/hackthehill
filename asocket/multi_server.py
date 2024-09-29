@@ -29,8 +29,8 @@ user = findUser(all_users.users, sys.argv[1].lower())
 PORT = int(user['port'])
 username = user['name']
 
-rootPath = '/Users/antoine/Documents/PP/hackthehill/asocket/server/' + username
-
+# rootPath = '/Users/antoine/Documents/PP/hackthehill/asocket/server/' + username
+rootPath = 'C:/Users/Reima/Documents/Notes/Competitive Programming/hackthehill/asocket/server/' + username
 chunksServer = chunks.Chunks(rootPath + '/chunks', rootPath + '/clean')
 
 sel = selectors.DefaultSelector()

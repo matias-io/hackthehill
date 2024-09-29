@@ -1,0 +1,8 @@
+  // Get the user's input      
+       
+        // Initialize the buffer before we read the input
+        for(int k=0; k<1024; k++)
+        	buffer[k] = '\u0020';        
+             
+        System.in.read(buffer);
+        theInput = new String(buffer).t

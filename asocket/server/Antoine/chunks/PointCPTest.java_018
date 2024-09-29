@@ -1,0 +1,7 @@
+         else  // Second and third arguments
+          {
+            //Convert the input to double values
+            if (i == 1)
+              a = Double.valueOf(theInput).doubleValue();
+            else
+              b = Double.valueOf(theInput).doubleVa

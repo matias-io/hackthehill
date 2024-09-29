@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Upload, Search, Download, Trash } from "lucide-react"
+import { Upload, Search, Download, Delete, Trash, TrendingUp } from "lucide-react"
 import { AreaChart, Area, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 interface File {
@@ -78,30 +78,126 @@ export default function Index() {
             setFilePath(result); // Store the file path in state
             setUploadStatus(result); // Store the file path in state
             console.log('Selected file:', result); // Log or use the file path as needed
-            sendFilePathToSocket(filePath);
-            setUploadStatus('STATUS:' + filePath)
+            sendFilePathToUpload(filePath);
+            setUploadStatus('Sending File:' + filePath)
           }
           else{
-          setUploadStatus("fAILURE TO READ"); // Store the file path in state 
+          setUploadStatus("Failure Sending File"); // Store the file path in state 
         }
     };
 
-    function sendFilePathToSocket(filePath: string) {
-    const socket = new WebSocket('ws://127.0.0.1:6001');  // Replace with your socket configuration
-    socket.onopen = () => {    
-    const message = JSON.stringify({
-            operation: 'upload_file',
-            data: filePath
-        });
-        socket.send(message);
-      }
-            socket.onerror = (error) => {
-              setUploadStatus('Error sending file to backend. (P2P CLIENT)');
-                console.error('Socket error:', error);
-            };
+    function sendFilePathToUpload(filePath: string) {
+      const socket = new WebSocket('ws://127.0.0.1:6001');  // Replace with your socket configuration
+      socket.onopen = () => {    
+      const message = JSON.stringify({
+              operation: 'upload_file',
+              data: filePath
+          });
+          socket.send(message);
+          setUploadStatus('File Sent!');
+
+        }
+      socket.onerror = (error) => {
+        setUploadStatus('Error sending file');
+          console.error('Socket error:', error);
+      };
 
     };
 
+    function sendFilePathToDownload(filePath: String){
+      const socket = new WebSocket('ws://127.0.0.1:6001');
+      socket.onopen = () => {    
+      const message = JSON.stringify({
+            operation: 'download_file',
+            data: filePath
+        });
+        socket.send(message);
+        setUploadStatus('Downloaded File in Default Location');
+      }
+      socket.onerror = (error) => {
+        setUploadStatus('Error Downloading File');
+          console.error('Socket error:', error);
+      };
+    }
+
+
+    function sendFilePathToDelete(filePath: String){
+      const socket = new WebSocket('ws://127.0.0.1:6001');
+      socket.onopen = () => {    
+      const message = JSON.stringify({
+            operation: 'delete_file',
+            data: filePath
+        });
+        socket.send(message);
+        setUploadStatus('Deleted File');
+      }
+      socket.onerror = (error) => {
+        setUploadStatus('Could not Delete file!');
+        console.error('Socket error:', error);
+      };
+    }
+    
+    useEffect(() => {
+      const updateFileDirectory = async () => {
+        const socket = new WebSocket('ws://127.0.0.1:6001');
+        
+        // Handle successful WebSocket connection
+        socket.onopen = () => {
+          const message = JSON.stringify({
+            operation: 'get_files',
+            data: ' ',
+          });
+          socket.send(message);
+          
+        };
+        
+        // Handle receiving messages from the WebSocket server
+        socket.onmessage = (event) => {
+          if(isRunning){
+            const response = JSON.parse(event.data);
+            if (response.status === 'success') {
+              setUploadStatus('File Dirrectory Refreshed!');
+              const fileList = response.message;
+              const transformedFiles: File[] = fileList.map((filename: string, index: number) => ({
+                id: (index + 1).toString(),
+                name: filename,
+                size: "NaN", // Placeholder function to generate size
+                uploadedBy: "user", // Placeholder function to generate uploader info
+          }));
+
+          setFiles(transformedFiles);
+          handleConnection(1)
+        } else {
+          console.error('Error receiving file list:', response.message);
+          handleConnection(0)
+        }
+      } else{
+        handleConnection(0);
+      }
+      };
+
+      // Handle WebSocket errors
+      socket.onerror = (error) => {
+        handleConnection(0)
+        setUploadStatus('Error connecting to backend. (P2P CLIENT)');
+        console.error('Socket error:', error);
+      };
+
+      // Close the socket when the component is unmounted
+      return () => {
+        socket.close();
+      };
+    };
+
+    // Call `updateFileDirectory` initially and every 10 seconds
+    updateFileDirectory(); // Initial call
+    const intervalId = setInterval(updateFileDirectory, 10000); // 10 seconds update interval
+
+    // Cleanup the interval and WebSocket connection on component unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
     // const sendFilePathToBackend = (filePath: string) => {
     //     const { exec } = require('child_process');
@@ -129,6 +225,8 @@ export default function Index() {
   const [dataUsage, setDataUsage] = useState<DataPoint[]>([])
 
   const [status, setStatus] = useState(1)
+  const [isRunning, setIsRunning] = useState(true)
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -168,6 +266,15 @@ export default function Index() {
     setStatus(type)
   }
 
+  const stopConnecting = (type: number) => {
+    if (type === 1) {
+      setIsRunning(true); // Update state to prevent future updates
+
+      handleConnection(0); // Updates UI to indicate stopped connecthandleConnectionion
+    } else {
+      setIsRunning(false); // Set the state to indicate active connection
+    }
+  }
   const filteredFiles = files.filter((file) =>
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -183,7 +290,7 @@ export default function Index() {
           className="animate-fade-in mb-0.5"
         />
                 {status ?
-          <button onClick={() => handleConnection(0)} className="group relative inline-flex ml-3 h-6 items-center justify-center overflow-hidden rounded-md bg-green-500 hover:bg-red-400 px-2 font-medium text-neutral-200 duration-500">
+          <button onClick={() => stopConnecting(1)} className="group relative inline-flex ml-3 h-6 items-center justify-center overflow-hidden rounded-md bg-green-500 hover:bg-red-400 px-2 font-medium text-neutral-200 duration-500">
             <div className="relative inline-flex -translate-x-0 items-center transition group-hover:translate-x-6">
               <div className="absolute -translate-x-4 opacity-0 transition group-hover:-translate-x-6 group-hover:opacity-100">
                 <svg
@@ -245,7 +352,7 @@ export default function Index() {
             </div>
           </button>
           :
-          <button onClick={() => handleConnection(1)} className="group relative inline-flex ml-3 h-6 items-center justify-center overflow-hidden rounded-md bg-orange-400 hover:bg-green-400 px-2 font-medium text-neutral-200 duration-500">
+          <button onClick={() => stopConnecting(0)} className="group relative inline-flex ml-3 h-6 items-center justify-center overflow-hidden rounded-md bg-orange-400 hover:bg-green-400 px-2 font-medium text-neutral-200 duration-500">
             <div className="relative inline-flex -translate-x-0 items-center transition group-hover:translate-x-6">
               <div className="absolute -translate-x-4 opacity-0 transition group-hover:-translate-x-6 group-hover:opacity-100">
                 <svg
@@ -484,8 +591,11 @@ export default function Index() {
                           <div className="col-span-3">{file.uploadedBy}</div>
                         </div>
                       </div>
-                      <Button className="w-full">
+                      <Button className="w-full" onClick={()=>sendFilePathToDownload(file.name)}>
                         <Download className="mr-2 h-4 w-4" /> Download
+                      </Button>
+                      <Button className="w-full" onClick={()=>sendFilePathToDelete(file.name)}>
+                        <Delete className="mr-2 h-4 w-4" /> Delete
                       </Button>
                     </DialogContent>
                   </Dialog>

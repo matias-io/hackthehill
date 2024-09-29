@@ -1,0 +1,10 @@
+ordinates, and then 
+ * converts them from polar to cartesian or vice-versa.
+ *
+ * @author Fran&ccedil;ois B&eacute;langer
+ * @author Dr Timothy C. Lethbridge
+ * @author Paul Holden
+ */
+public class PointCPTest
+{
+  //Class methods *************************

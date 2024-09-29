@@ -9,10 +9,10 @@ class Client:
     all_files = []
     all_users = UserTable()
     users = all_users.users.copy()
-    root_path = '/Users/antoine/Documents/PP/hackthehill/asocket'
+    root_path = 'C:/Users/Reima/Documents/Notes/Competitive Programming/hackthehill/asocket'
     chunksClient = chunks.Chunks(root_path + '/client/chunks', root_path + '/client/clean')
     
-    def __init__(self, root_path='/Users/antoine/Documents/PP/hackthehill/asocket') -> None:
+    def __init__(self, root_path='C:/Users/Reima/Documents/Notes/Competitive Programming/hackthehill/asocket') -> None:
         self.root_path = root_path
         self.chunksClient = chunks.Chunks(root_path + '/client/chunks', root_path + '/client/clean')
 

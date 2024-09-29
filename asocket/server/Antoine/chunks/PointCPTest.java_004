@@ -1,0 +1,10 @@
+coordinate type.  P for polar and C for
+   *                cartesian.
+   * @param args[1] The value of X or RHO.
+   * @param args[2] The value of Y or THETA.
+   */
+  public static void main(String[] args)
+  {
+    PointCP point;
+
+    System.out.println("Ca

@@ -1,0 +1,6 @@
+4];  //Buffer to hold byte input
+    boolean isOK = false;  // Flag set if input correct
+    String theInput = "";  // Input information
+    
+    //Information to be passed to the constructor
+    char coordType = 'A'; // Temporary default, to be set to P o
