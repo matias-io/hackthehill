@@ -15,10 +15,13 @@ class Chunks:
         self.filepath = filepath
         self.cleanfilepath = cleanpath
 
+    def setPath(self, newPath):
+        self.cleanfilepath = newPath
+
     # Read a specific chunk file
     # Return the buffer
     def readChunkFile(self, name, number):
-        fname = name + '_' + str(number)
+        fname = name + '_' + str(number).zfill(3)
         path = self.filepath + '/' + fname
 
         with open(path, 'rb') as f:
@@ -28,7 +31,7 @@ class Chunks:
 
     # Write a specific chunk file
     def writeChunkFile(self, name, number, file_data):
-        fname = name + '_' + str(number)
+        fname = name + '_' + str(number).zfill(3)
         path = self.filepath + '/' + fname
 
         with open(path, 'wb+') as f:
@@ -44,7 +47,7 @@ class Chunks:
         chunks = {}
 
         while found < n:
-            fname = name + '_' + str(index)
+            fname = name + '_' + str(index).zfill(3)
             path = self.filepath + '/' + fname
             print("Trying path " + path)
         
@@ -70,7 +73,7 @@ class Chunks:
         file_data = []
 
         while True:
-            fname = name + '_' + str(index)
+            fname = name + '_' + str(index).zfill(3)
             path = self.filepath + '/' + fname
             print(path)
         

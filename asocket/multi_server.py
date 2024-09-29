@@ -14,6 +14,9 @@
 # Delete file
 # delete:filename
 
+# Get all users in the mesh
+# users
+
 import sys
 import socket
 import selectors
