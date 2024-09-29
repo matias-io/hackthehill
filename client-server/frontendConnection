@@ -4,7 +4,7 @@ import websockets
 import os
 import json
 
-from asocket.client_obj import Client
+import asocket.client_obj;
 
 client = Client()
 
@@ -12,29 +12,31 @@ client = Client()
 async def frontend_link(websocket, path):
     print("Frontend Connected")
     try:
-        async for message in websocket:
-            request = json.loads(message)
-            operation = request.get("operation")
-            data = request.get("data")
-            
-            if operation == "upload_file":
-                client.upload_file_distributed(data);
-                await websocket.send(json.dumps({"status": "success", "message": f"Uploaded {filename} to distributed nodes"}))
-            
-            elif operation == "download_file":
-                client.download_file(data)
-                await websocket.send(json.dumps({"status": "success", "message": f"Chunk {number} of {filename} uploaded to {hostdest}"}))
+        
+        message = await websocket.recv()
 
-            elif operation == "delete_file":
-                client.delete_file(data)
-                await websocket.send(json.dumps({"status": "success", "message": f"Deleted {filename} sucessfully"}))
-                
-            elif operation == "get_files":
-                files = client.ls()
-                await websocket.send(json.dumps({"status": "success", "message": files}))
+        request = json.loads(message)
+        operation = request.get("operation")
+        data = request.get("data")
+        
+        if operation == "upload_file":
+            client.upload_file_distributed(data);
+            await websocket.send(json.dumps({"status": "success", "message": f"Uploaded {filename} to distributed nodes"}))
+        
+        elif operation == "download_file":
+            client.download_file(data) # file name 
+            await websocket.send(json.dumps({"status": "success", "message": f"Downloaded {data} file to default location"}))
 
-            else:
-                await websocket.send(json.dumps({"status": "error", "message": "Invalid operation"}))
+        elif operation == "delete_file":
+            client.delete_file(data)
+            await websocket.send(json.dumps({"status": "success", "message": f"Deleted {filename} sucessfully"}))
+            
+        elif operation == "get_files":
+            files = client.ls()
+            await websocket.send(json.dumps({"status": "success", "message": files}))
+
+        else:
+            await websocket.send(json.dumps({"status": "error", "message": "Invalid operation"}))
 
     except websockets.exceptions.ConnectionClosed:
         print("Connection closed. Awaiting reconnection")

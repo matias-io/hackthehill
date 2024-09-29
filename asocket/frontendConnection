@@ -1,0 +1,60 @@
+import socket
+import asyncio
+import websockets
+import os
+import json
+from pathlib import Path
+
+from client_obj import Client
+
+client = Client()
+
+# WebSocket Handler Function
+async def frontend_link(websocket, path):
+    print("Frontend Connected")
+    try:
+        
+            message = await websocket.recv()
+            request = json.loads(message)
+            operation = request.get("operation")
+            data = request.get("data")
+            
+            if operation == "upload_file":
+                
+
+                file_path = Path(data)
+                directory = str(file_path.parent)
+                filename = str(file_path.name)
+
+                client.update_path(directory)
+                print(data)
+                print("dir", directory)
+                print("fn", filename)
+                client.upload_file_distributed(filename);
+                await websocket.send(json.dumps({"status": "success", "message": f"Uploaded {data} to distributed nodes"}))
+            
+            elif operation == "download_file":
+                client.download_file(data) # file name 
+                await websocket.send(json.dumps({"status": "success", "message": f"Downloaded {data} file to default location"}))
+
+            elif operation == "delete_file":
+                client.delete_file(data)
+                await websocket.send(json.dumps({"status": "success", "message": f"Deleted {filename} sucessfully"}))
+                
+            elif operation == "get_files":
+                files = client.ls()
+                await websocket.send(json.dumps({"status": "success", "message": files}))
+
+            else:
+                await websocket.send(json.dumps({"status": "error", "message": "Invalid operation"}))
+
+    except websockets.exceptions.ConnectionClosed:
+        print("Connection closed. Awaiting reconnection")
+
+async def main():
+    async with websockets.serve(frontend_link, '127.0.0.1', 6001):
+        print("WebSocket server started on ws://127.0.0.1:6001")
+        await asyncio.Future()
+
+if __name__ == "__main__":
+    asyncio.run(main())

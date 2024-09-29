@@ -26,7 +26,7 @@ import chunks
 USERS = [
     {
         'ip': '127.0.0.1',
-        'port': 12343,
+        'port': 4001,
         'name': 'Antoine'
     },
     {

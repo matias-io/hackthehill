@@ -40,6 +40,38 @@ export default function Index() {
     const [filePath, setFilePath] = useState<string>('');
     const [uploadStatus, setUploadStatus] = useState<string>('');
 
+
+    // useEffect(() => {
+    //     const ws = new WebSocket('ws://127.0.0.1:6001');
+
+    //     ws.onopen = () => {
+    //         console.log('WebSocket connected');
+    //         setUploadStatus('Connected to WebSocket');
+    //     };
+
+    //     ws.onmessage = (event) => {
+    //         const response = JSON.parse(event.data);
+    //         console.log('Message from WebSocket:', response);
+    //         setUploadStatus(response.message || 'No message');
+    //     };
+
+    //     ws.onerror = (error) => {
+    //         console.error('WebSocket error:', error);
+    //         setUploadStatus('WebSocket Error');
+    //     };
+
+    //     ws.onclose = () => {
+    //         console.log('WebSocket closed');
+    //         setUploadStatus('Disconnected from WebSocket');
+    //     };
+
+    //     // Cleanup on unmount
+    //     return () => {
+    //         ws.close();
+    //     };
+    // }, []);
+
+    
     const selectFile = async () => {
         const result = await window.electron.ipcRenderer.invoke('open-file-dialog'); // Accessing the invoke method from the exposed API
         if (result) {
@@ -47,6 +79,7 @@ export default function Index() {
             setUploadStatus(result); // Store the file path in state
             console.log('Selected file:', result); // Log or use the file path as needed
             sendFilePathToSocket(filePath);
+            setUploadStatus('STATUS:' + filePath)
           }
           else{
           setUploadStatus("fAILURE TO READ"); // Store the file path in state 
@@ -55,20 +88,21 @@ export default function Index() {
 
     function sendFilePathToSocket(filePath: string) {
     const socket = new WebSocket('ws://127.0.0.1:6001');  // Replace with your socket configuration
-    
-    socket.onopen = () => {
-        socket.send(filePath);  // Send the file path over the socket
-        console.log('File path sent to socket:', filePath);
-            setUploadStatus('File path sent to    P2P client successfully.');
+    socket.onopen = () => {    
+    const message = JSON.stringify({
+            operation: 'upload_file',
+            data: filePath
+        });
+        socket.send(message);
+      }
+            socket.onerror = (error) => {
+              setUploadStatus('Error sending file to backend. (P2P CLIENT)');
+                console.error('Socket error:', error);
+            };
 
     };
 
-    socket.onerror = (error) => {
-      setUploadStatus('Error sending file to backend. (P2P CLIENT)');
-        console.error('Socket error:', error);
-    };
 
-}
     // const sendFilePathToBackend = (filePath: string) => {
     //     const { exec } = require('child_process');
     //     exec(`python3 path/to/your/client_script.py "${filePath}"`, (error: any, stdout: string, stderr: string) => {

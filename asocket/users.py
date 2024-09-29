@@ -1,5 +1,5 @@
 # TODO: Modify this for you machine
-TABLE_PATH = '/Users/antoine/Documents/PP/hackthehill/asocket/user_table.tx'
+TABLE_PATH = 'C:/Users/Reima/Documents/Notes/Competitive Programming/hackthehill/asocket/user_table.tx'
 
 def findUser(all, name):
     for u in all:
