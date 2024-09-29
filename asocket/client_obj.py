@@ -33,11 +33,13 @@ class Client:
         while i < len(self.users):
             try:
                 s = socket.socket()
-                s.connect((self.users[i]['ip'], self.users[i]['port']))
+                print("Connectiong to " + self.users[i]['ip'] + " " +  self.users[i]['port'])
+                s.connect((self.users[i]['ip'], int(self.users[i]['port'])))
                 self.users[i]['socket'] = s
                 print("Connected to " + self.users[i]['name'])
                 i = i + 1
-            except:
+            except Exception as e:
+                print(e)
                 print("User " + self.users[i]['name'] + ' is not available')
                 del self.users[i]
                 continue
@@ -107,6 +109,7 @@ class Client:
     # Upload file in a distributed way to the system
     def upload_file_distributed(self, filename):
         c = self.chunksClient.deconstructFile(filename)
+        print(c)
         userNum = 0
 
         for user in self.users:
@@ -127,11 +130,11 @@ class Client:
             data = user['socket'].recv(1024)
             files = data.decode().split(':')
             self.all_files.extend(files)
-
             self.all_files = list(dict.fromkeys(self.all_files))
-            for f in self.all_files:
-                print(f)
-        
+
+        for f in self.all_files:
+            print(f)
+    
         return self.all_files
 
     # List all the chunks of a host

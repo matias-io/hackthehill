@@ -25,8 +25,8 @@ import chunks
 from users import UserTable, findUser
 
 all_users = UserTable()
-user = findUser(all_users.users, sys.argv[1])
-PORT = user['port']
+user = findUser(all_users.users, sys.argv[1].lower())
+PORT = int(user['port'])
 username = user['name']
 
 rootPath = '/Users/antoine/Documents/PP/hackthehill/asocket/server/' + username

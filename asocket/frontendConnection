@@ -27,10 +27,10 @@ async def frontend_link(websocket, path):
                 filename = str(file_path.name)
 
                 client.update_path(directory)
-                print(data)
+                print("data ", data)
                 print("dir", directory)
                 print("fn", filename)
-                client.upload_file_distributed(filename);
+                client.upload_file_distributed(filename)
                 await websocket.send(json.dumps({"status": "success", "message": f"Uploaded {data} to distributed nodes"}))
             
             elif operation == "download_file":

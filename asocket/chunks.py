@@ -131,7 +131,7 @@ class Chunks:
     def listFiles(self):
         l = []
         for path in os.listdir(self.filepath):
-            l.append(path.split('_')[0])
+            l.append(path[:-4])
 
         l = list(dict.fromkeys(l))
         return l
