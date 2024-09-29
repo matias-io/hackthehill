@@ -1,10 +1,3 @@
-<h1>Frontend (/frontend)</h1>
-Next app 
-- npm install
-- npm run dev
+<h1> Hasing algorithmn </h1>
 
-<h1>server</h1>
-Recieving/master in the p2p connection
-
-<h1>client-server</h1>
-client in the p2p connection
+ ** The main hasing algorithm in python is in a hackthehill/asocket/hasher.py ** 
