@@ -1,77 +1,59 @@
 import chunks
 import socket
-from users import USERS, findUser
-
-# Commands
-
-# POINT TO POINT
-
-# Sending a chunk file (file in client/chunks)
-# sc:filename:number:dest
-
-# Sending a full file (file in client/clean)
-# sf:filename:dest
-
-# Downloading file
-# down:filename:source
-
-# Get all chunks
-# cls:dst
-
-# ENTIRE NETWORK
-
-# List all available files in network
-# ls
-
-# Distributed upload
-# Will split the chunks accross hosts
-# dup:filename
-
-# Distributed download
-# Will find chunks from everywhere
-# ddown:filename
-
-# Delete file from network
-# del:filename
-
-# Delete file from network
-
-# DEPRECIATED
-# Reconstruct file from chunks (server side) 
-# r:filename
-
-chunksClient = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/client/chunks', '/Users/antoine/Documents/PP/hackthehill/asocket/client/clean')
-chunksServer = chunks.Chunks('/Users/antoine/Documents/PP/hackthehill/asocket/server/chunks', '/Users/antoine/Documents/PP/hackthehill/asocket/server/clean')
+from users import UserTable, findUser
+import os
 
 class Client:
 
     # List of all files in the network
     all_files = []
+    all_users = UserTable()
+    users = all_users.users.copy()
+    root_path = '/Users/antoine/Documents/PP/hackthehill/asocket'
+    chunksClient = chunks.Chunks(root_path + '/client/chunks', root_path + '/client/clean')
+    
+    def __init__(self, root_path='/Users/antoine/Documents/PP/hackthehill/asocket') -> None:
+        self.root_path = root_path
+        self.chunksClient = chunks.Chunks(root_path + '/client/chunks', root_path + '/client/clean')
 
-    def __init__(self) -> None:
+        self.connect_to_hosts()
+
+        # Make sure that the paths exists
+        try:
+            os.makedirs(self.root_path + '/client')
+            os.makedirs(self.root_path + '/client/chunks')
+            os.makedirs(self.root_path + '/client/clean')
+        except:
+            return
+
+    # Attempts to reconnect to all hosts in the network
+    def connect_to_hosts(self):
         i = 0
-        for user in USERS:
+        self.users = self.all_users.users.copy()
+        while i < len(self.users):
             try:
                 s = socket.socket()
-                s.connect((user['ip'], user['port']))
-                user['socket'] = s
-                print("Connected to " + user['name'])
+                s.connect((self.users[i]['ip'], self.users[i]['port']))
+                self.users[i]['socket'] = s
+                print("Connected to " + self.users[i]['name'])
+                i = i + 1
             except:
-                print("User " + user['name'] + ' is not available')
-                del USERS[i]
+                print("User " + self.users[i]['name'] + ' is not available')
+                del self.users[i]
                 continue
 
-            i = i + 1
-
-        if len(USERS) == 0:
+        if len(self.users) == 0:
             print("No one is connected to network")
-            exit()
+    
+    # Updates the path where files are taken and where files are put to
+    def update_path(self, new):
+        self.chunksClient.setPath(new)
 
     # Upload a specific chunk to a specific host
-    def upload_chunk_to_host(filename, number, hostdest):
-        user = findUser(hostdest)
+    def upload_chunk_to_host(self, filename, number, hostdest):
+        user = findUser(self.users, hostdest)
 
-        c = chunksClient.readChunkFile(filename, number)
+        c = self.chunksClient.readChunkFile(filename, number)
 
         mes = 'upload:' + filename + ":" + number + ":" + c.decode()
         print(mes)
@@ -81,11 +63,11 @@ class Client:
         print(data.decode())
 
     # Upload a file to a specific host
-    def upload_file_to_host(filename, hostdest):
-        user = findUser(hostdest)
+    def upload_file_to_host(self, filename, hostdest):
+        user = findUser(self.users, hostdest)
 
 
-        c = chunksClient.deconstructFile(filename)
+        c = self.chunksClient.deconstructFile(filename)
         index = 0
 
         for chunk in c:
@@ -97,11 +79,11 @@ class Client:
             index = index + 1
 
     # Upload file in a distributed way to the system
-    def upload_file_distributed(filename):
-        c = chunksClient.deconstructFile(filename)
+    def upload_file_distributed(self, filename):
+        c = self.chunksClient.deconstructFile(filename)
         userNum = 0
 
-        for user in USERS:
+        for user in self.users:
             index = userNum
             while index < len(c):
                 print("Sending chunk", str(index))
@@ -109,41 +91,50 @@ class Client:
                 user['socket'].sendall(mes.encode())
                 data = user['socket'].recv(1024)
                 print(data.decode())
-                index = index + len(USERS)
+                index = index + len(self.users)
             userNum = userNum + 1
 
     # List all available files in the system
-    def ls():
-        for user in USERS:
+    def ls(self):
+        for user in self.users:
             user['socket'].sendall('ls'.encode())
             data = user['socket'].recv(1024)
             files = data.decode().split(':')
-            all_files.extend(files)
+            self.all_files.extend(files)
 
-            all_files = list(dict.fromkeys(all_files))
+            self.all_files = list(dict.fromkeys(self.all_files))
+            for f in self.all_files:
+                print(f)
+        
+        return self.all_files
 
     # List all the chunks of a host
-    def chunk_list(hostdest):
-        user = findUser(hostdest)
+    def chunk_list(self, hostdest):
+        user = findUser(self.users, hostdest)
         user['socket'].sendall('cls'.encode())
         data = user['socket'].recv(1024)
         files = sorted(data.decode().split(':'))
         for f in files:
             print(f)
 
+        return files
+
     # Delete file for all hosts
-    def delete_file(filename):
-        splits = new.split(':')
-        filename = splits[1]
-        for user in USERS:
+    def delete_file(self, filename):
+        for user in self.users:
             msg = 'delete:' + filename
             user['socket'].sendall(msg.encode())
             data = user['socket'].recv(1024)
             print(data.decode())
 
+    # Add user
+    def add_user(self, name, ip, port):
+        self.all_users.addUser(name, ip, port)
+        self.connect_to_hosts()
+
     # Download a file from a specific host
-    def download_file(filename, hostdest):
-        user = findUser(hostdest)
+    def download_file_host(self, filename, hostdest):
+        user = findUser(self.users, hostdest)
 
 
         user['socket'].sendall(('download:' + filename).encode())
@@ -191,14 +182,14 @@ class Client:
             i = i + 1
         
         
-        chunksClient.reconstrucFile(filename, chunks_ordered)
+        self.chunksClient.reconstrucFile(filename, chunks_ordered)
 
     # Download a file from all hosts
-    def download_file(filename):
+    def download_file(self, filename):
         data = ''.encode()
         all_chunks = {}
 
-        for user in USERS:
+        for user in self.users:
             user['socket'].sendall(('download:' + filename).encode())
 
             while True:
@@ -249,4 +240,4 @@ class Client:
             i = i + 1
         
         
-        chunksClient.reconstrucFile(filename, chunks_ordered)
+        self.chunksClient.reconstrucFile(filename, chunks_ordered)
