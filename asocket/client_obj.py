@@ -1,6 +1,6 @@
 import chunks
 import socket
-from users import UserTable, findUser
+from users import UserTable, findUser, LOCAL_IP, LOCAL_NAME, LOCAL_PORT
 import os
 
 class Client:
@@ -44,6 +44,32 @@ class Client:
 
         if len(self.users) == 0:
             print("No one is connected to network")
+
+    # Update the user table by asking all hosts
+    def user_table_update(self):
+        data = ''.encode()
+
+        for user in self.users:
+            user['socket'].sendall((f'users:{LOCAL_NAME}:{LOCAL_IP}:{LOCAL_PORT}').encode())
+
+            while True:
+                temp = user['socket'].recv(1024)
+                if temp.decode().endswith('}'):
+                    data = data + temp[:-1]
+                    break
+                else:
+                    data = data + temp
+            
+        user_strings = data.split('|')
+
+        for user_s in user_strings:
+            s = user_s.split(':')
+            name = s[0]
+            ip = s[1]
+            port = s[2]
+            if self.all_users.checkUser(name) == False:
+                self.add_user(name, ip, port)
+
     
     # Updates the path where files are taken and where files are put to
     def update_path(self, new):

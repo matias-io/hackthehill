@@ -15,35 +15,17 @@
 # delete:filename
 
 # Get all users in the mesh
-# users
+# users:name:ip:port
 
 import sys
 import socket
 import selectors
 import types
 import chunks
+from users import UserTable, findUser
 
-USERS = [
-    {
-        'ip': '127.0.0.1',
-        'port': 4001,
-        'name': 'Antoine'
-    },
-    {
-        'ip': '127.0.0.1',
-        'port': 12398,
-        'name': 'Lucas'
-    }
-]
-
-def findUser(name):
-    for u in USERS:
-        if u['name'].lower() == name.lower():
-            return u
-    print('Could not find user')
-    exit()
-
-user = findUser(sys.argv[1])
+all_users = UserTable()
+user = findUser(all_users.users, sys.argv[1])
 PORT = user['port']
 username = user['name']
 
@@ -134,6 +116,19 @@ def service_connection(key, mask):
                 filename = parts[1]
                 chunksServer.deleteFile(filename)
                 sock.send("Ok".encode())
+
+            elif dataString.startswith('users'):
+                parts = data.outb.decode().split(':')
+                name = parts[1]
+                ip = parts[2]
+                port = parts[3]
+                all_users.addUser(name, ip, port)
+                for u in all_users.users:
+                    s = u['name'] + ':' + u['ip'] + ':' + u['port'] + '|'
+                    sock.send(s.encode())
+                sock.send('}'.encode())
+                
+
 
             else:
                 print('Invalid command: ', dataString)

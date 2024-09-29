@@ -40,6 +40,9 @@ Update path
 Add user to network
     `add name ip port
 
+Explore all network to discover users
+    `explore`
+
 """)
     
 c = Client()
@@ -72,5 +75,7 @@ while True:
         c.update_path(s[1])
     elif s[0] == "add":
         c.add_user(s[1], s[2], s[3])
+    elif s[0] == "explore":
+        c.user_table_update()
     else:
         help()
