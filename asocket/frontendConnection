@@ -37,7 +37,7 @@ async def frontend_link(websocket, path):
 
             elif operation == "delete_file":
                 client.delete_file(data)
-                await websocket.send(json.dumps({"status": "success", "message": f"Deleted {filename} sucessfully"}))
+                await websocket.send(json.dumps({"status": "success", "message": f"Deleted {data} sucessfully"}))
                 
             elif operation == "get_files":
                 print("done")
